@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test 3D Pine Tree</title>
+    <script src="../three.js"></script>
+    <script src="../OrbitControls.js"></script>
+    <script src="pinetree.js"></script>
+    <!--<script src="test sim/physics.js"></script>-->
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+         }
+        canvas { display: block; width: 100%; height: 100%;}
+        #ui-cont{
+            width: 100%;
+            height: 100vh;
+            overflow-y: none;
+            overflow-x: none;
+            z-index: 100;
+            position: fixed;
+            pointer-events: none;
+        }
+        .bar{
+            z-index: 200;
+            width: 100%;
+            color: white;
+            border: 1px solid red;
+            text-align: center;
+        }
+        #top-bar{
+            width: 100%;
+            height: 15vh;
+        }
+        #middle-bar{
+            width: 100%;
+            height: 55vh;
+            border: 1px solid blue;
+        }
+        #bottom-bar{
+            height: 30vh;
+            width: 100%;
+            border: 1px solid green;
+        }
+        .cont{
+            display: inline-block;
+            border: 1px solid yellow;
+            height: 100%;
+        }
+        .L{
+            width: 14%;
+        }
+        .M{
+            width: 72%;
+        }
+        .R{
+            width: 13%;
+        }
+        #middle-bar .M {
+            //background: rgba(200,100,100, 0.5);
+            pointer-events: none;
+        }
+        #minimap{
+            padding: 0;
+            z-index: 100;
+            width: 95%;
+            height: 98%;
+            position: fixed;
+        }
+
+    </style>
+    <div id="ui-cont">
+        <div class="bar" id="top-bar">
+            <div class="cont L">L</div>
+            <div class="cont M">M</div>
+            <div class="cont R">R</div>
+        </div>
+        <div class="bar" id="middle-bar">
+            <div class="cont L">L</div>
+            <div class="cont M">M</div>
+            <div class="cont R">R</div>
+        </div>
+        <div class="bar" id="bottom-bar">
+            <div class="cont L">
+                <canvas id="minimap"></canvas>L
+            </div>
+            <div class="cont M">M</div>
+            <div class="cont R">R</div>
+        </div>
+    </div>
+</head>
+<body>
+<script src="tree_test.js"></script>
+</body>
+</html>

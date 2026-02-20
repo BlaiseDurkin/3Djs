@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Fibonacci Sine Tree</title>
+<style>body{margin:0;overflow:hidden}</style>
+    <script src="../three.js"></script>
+    <script src="../OrbitControls.js"></script></head>
+<body>
+<script>
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xa0d8ef);
+const camera = new THREE.PerspectiveCamera(60,window.innerWidth/window.innerHeight,0.1,500);
+camera.position.set(0,10,40);
+
+const renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+scene.add(new THREE.AmbientLight(0xffffff,0.6));
+const dirLight = new THREE.DirectionalLight(0xffffff,0.6);
+dirLight.position.set(20,40,20);
+scene.add(dirLight);
+
+const ground = new THREE.Mesh(
+  new THREE.PlaneGeometry(200,200),
+  new THREE.MeshStandardMaterial({color:0x335533})
+);
+ground.rotation.x = -Math.PI/2;
+scene.add(ground);
+
+/* --- Include SineBranch, fib, growBranch here --- */
+class SineBranch extends THREE.Curve {
+  constructor(length, amplitude, waves, direction) {
+    super();
+    this.length = length;
+    this.amplitude = amplitude;
+    this.waves = waves;
+    this.dir = direction.clone().normalize();
+  }
+  getPoint(t) {
+    const forward = this.dir;
+    const side = new THREE.Vector3().crossVectors(forward, new THREE.Vector3(0,1,0));
+    if (side.length() < 0.01) side.set(1,0,0);
+    side.normalize();
+    const up = new THREE.Vector3().crossVectors(side, forward).normalize();
+    const center = forward.clone().multiplyScalar(t * this.length);
+    const offset = side.multiplyScalar(Math.sin(t * this.waves * Math.PI * 2) * this.amplitude);
+    return center.add(offset);
+  }
+}
+function fib(n){
+  if (n < 2) return 1;
+  let a = 1, b = 1;
+  for (let i=2; i<=n; i++){ const tmp = a + b; a = b; b = tmp; }
+  return b;
+}
+function growBranch(parentPos, direction, depth, maxDepth){
+  if (depth > maxDepth) return;
+  const length = 6 * Math.pow(0.7, depth);
+  const radius = 0.25 * Math.pow(0.7, depth);
+  const curve = new SineBranch(length, 0.2, 1, direction);
+  const geo = new THREE.TubeGeometry(curve, 32, radius, 8, false);
+  const mat = new THREE.MeshStandardMaterial({color:0x2e8b57});
+  const branch = new THREE.Mesh(geo, mat);
+  branch.position.copy(parentPos);
+  scene.add(branch);
+
+  const endPos = parentPos.clone().add(direction.clone().normalize().multiplyScalar(length));
+  const children = fib(depth);
+  const angleStep = (Math.PI * 2) / Math.max(children,1);
+
+  for(let i=0;i<children;i++){
+    const angle = i * angleStep;
+    const rotAxis = new THREE.Vector3(0,1,0);
+    const childDir = direction.clone()
+      .applyAxisAngle(rotAxis, angle)
+      .applyAxisAngle(new THREE.Vector3(1,0,0), THREE.MathUtils.degToRad(25));
+    growBranch(endPos, childDir, depth+1, maxDepth);
+  }
+}
+
+/* Build the tree */
+const base = new THREE.Vector3(0,0,0);
+const up = new THREE.Vector3(0,1,0);
+growBranch(base, up, 0, 4);  // increase maxDepth for bigger tree
+
+function animate(){
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene,camera);
+}
+animate();
+window.addEventListener('resize',()=>{
+  camera.aspect=window.innerWidth/window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+</script>
+</body>
+</html>
